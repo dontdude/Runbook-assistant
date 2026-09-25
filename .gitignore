@@ -19,3 +19,7 @@ build/
 
 # Local agent context (untracked, personal notes for future agents)
 agent-context/
+
+# Web UI
+web/node_modules/
+web/dist/
