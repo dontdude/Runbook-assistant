@@ -371,7 +371,9 @@ Full ADRs in [docs/decisions/](docs/decisions/); summaries:
 - [ ] **Semantic response caching** to cut token spend on near-duplicate questions
 - [ ] Multi-tenancy: organizations, roles, and document-level ACLs
 - [x] Minimal React frontend (chat + upload + citations UI) — see `web/`
-- [ ] Record `docs/demo.gif` — Claude Desktop calling Corpus via MCP (see [docs/mcp-setup.md](docs/mcp-setup.md))
+- [x] Record `docs/demo.gif` — UI walkthrough: login → chat (keyless 503 trace) → documents → reranked search
+
+![Demo](docs/demo.gif)
 - [ ] Helm chart / k8s manifests
 
 ---
