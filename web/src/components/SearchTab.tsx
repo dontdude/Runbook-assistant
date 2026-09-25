@@ -1,3 +1,4 @@
+import { Hint } from './Hint';
 import type { useSearch } from '../hooks/useSearch';
 
 type Search = ReturnType<typeof useSearch>;
@@ -6,6 +7,10 @@ type Search = ReturnType<typeof useSearch>;
 export function SearchTab({ search }: { search: Search }) {
   return (
     <section>
+      <Hint>
+        Raw retrieval, no chat model. Run a query, then flip the rerank toggle and run it again —
+        that is the hybrid-RRF vs cross-encoder A/B the eval gates enforce.
+      </Hint>
       <div className="card">
         <form
           className="row"

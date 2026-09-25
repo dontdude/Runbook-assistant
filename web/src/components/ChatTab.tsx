@@ -1,4 +1,5 @@
 import { CitedText } from './CitedText';
+import { Hint } from './Hint';
 import type { useChat } from '../hooks/useChat';
 
 type Chat = ReturnType<typeof useChat>;
@@ -7,6 +8,10 @@ type Chat = ReturnType<typeof useChat>;
 export function ChatTab({ chat }: { chat: Chat }) {
   return (
     <section>
+      <Hint>
+        Ask in plain words — the answer streams token by token, and every [n] links to the exact source
+        chunk below. Usage shows what the answer cost.
+      </Hint>
       <div className="card">
         <form
           onSubmit={(e) => {

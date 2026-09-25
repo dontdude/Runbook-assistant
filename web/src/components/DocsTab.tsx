@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Hint } from './Hint';
 import type { useDocs } from '../hooks/useDocs';
 
 type Docs = ReturnType<typeof useDocs>;
@@ -24,6 +25,10 @@ export function DocsTab({ docs }: { docs: Docs }) {
 
   return (
     <section>
+      <Hint>
+        Upload a PDF, Markdown, DOCX or TXT file — it returns instantly and ingests in the background.
+        Watch the status flip PENDING → READY, then ask about it in Chat.
+      </Hint>
       <div className="card row">
         <label className="row">
           <input
