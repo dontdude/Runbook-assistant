@@ -6,12 +6,12 @@
 # models. Fly has first-class pgvector, a volume for the model cache, and sets
 # the unforgeable Fly-Client-IP header that per-client rate limiting needs.
 
-app = "corpus-demo"
+app = "runbook-assistant-demo"
 primary_region = "iad"
 
 [build]
   # Published by .github/workflows/publish.yml; deploy-demo.yml pins the digest.
-  image = "ghcr.io/ahmeddyounis/corpus:latest"
+  image = "ghcr.io/dontdude/runbook-assistant:latest"
 
 [env]
   # Keyless, and that is the security control, not a limitation. With no API key

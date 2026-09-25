@@ -1,8 +1,10 @@
-# Corpus — AI Document Assistant
+# Runbook-assistant — AI Document Assistant
+
+> Fork-inspired by [ahmeddyounis/corpus](https://github.com/ahmeddyounis/corpus) @ `65d4cc0` (MIT). Rebuilt and personalized by Chandan Mishra.
 
 > **Chat with your documents.** A production-grade RAG (Retrieval-Augmented Generation) service built with Spring Boot 4, Spring AI 2.0, and PostgreSQL/pgvector — exposing its knowledge both as a REST API and as an **MCP (Model Context Protocol) server** that Claude Desktop and other AI clients can call as a tool.
 
-![CI](https://github.com/ahmeddyounis/corpus/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/dontdude/Runbook-assistant/actions/workflows/ci.yml/badge.svg)
 ![Java](https://img.shields.io/badge/Java-25%20LTS-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0-6DB33F)
 ![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-6DB33F)
@@ -155,7 +157,7 @@ Interactive docs: `http://localhost:8080/swagger-ui.html`.
 ### Run fully local — no API key
 
 ```bash
-git clone https://github.com/ahmeddyounis/corpus && cd corpus
+git clone https://github.com/dontdude/Runbook-assistant && cd Runbook-assistant
 docker compose up --build
 ```
 

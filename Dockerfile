@@ -13,11 +13,11 @@ RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon bootJar -x tes
 FROM eclipse-temurin:25-jre AS runtime
 ARG SOURCE_COMMIT=unknown
 ARG VERSION=0.1.0-SNAPSHOT
-LABEL org.opencontainers.image.source="https://github.com/ahmeddyounis/corpus" \
+LABEL org.opencontainers.image.source="https://github.com/dontdude/Runbook-assistant" \
       org.opencontainers.image.revision="${SOURCE_COMMIT}" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.title="corpus"
+      org.opencontainers.image.title="runbook-assistant"
 RUN groupadd --system corpus && useradd --system --gid corpus corpus
 # Pre-create the model cache with the right ownership: Docker copies this
 # directory's permissions when it first initialises an empty named volume here,

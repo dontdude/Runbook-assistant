@@ -16,3 +16,6 @@ build/
 
 # ONNX model cache (downloaded at test time)
 .onnx-cache/
+
+# Local agent context (untracked, personal notes for future agents)
+agent-context/

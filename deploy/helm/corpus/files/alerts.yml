@@ -33,7 +33,7 @@ groups:
         annotations:
           summary: "Burning the 30-day error budget 14.4x faster than sustainable"
           description: "At this rate the entire monthly budget is gone in ~2 days."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpuserrorbudgetburnfast"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpuserrorbudgetburnfast"
 
       - alert: CorpusErrorBudgetBurnSlow
         expr: |
@@ -51,7 +51,7 @@ groups:
           severity: ticket
         annotations:
           summary: "Sustained error-budget burn at 6x the sustainable rate"
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpuserrorbudgetburnslow"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpuserrorbudgetburnslow"
 
       - alert: CorpusInstanceDown
         expr: up{job="corpus"} == 0
@@ -60,7 +60,7 @@ groups:
           severity: page
         annotations:
           summary: "Corpus replica {{ $labels.instance }} is not being scraped"
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusinstancedown"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusinstancedown"
 
   - name: corpus-latency
     interval: 30s
@@ -76,7 +76,7 @@ groups:
           summary: "p95 time-to-first-token above the 5s objective"
           description: "Users see a spinner before any text. Check provider latency, the
             circuit breaker, and rerank p95 - reranking sits ahead of the model call."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusslowfirsttoken"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusslowfirsttoken"
 
       - alert: CorpusSlowRetrieval
         expr: |
@@ -87,7 +87,7 @@ groups:
           severity: ticket
         annotations:
           summary: "p95 retrieval latency above the 500ms objective"
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusslowretrieval"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusslowretrieval"
 
   - name: corpus-quality
     interval: 60s
@@ -108,7 +108,7 @@ groups:
           summary: "Fleet-mean RRF top score has fallen to single-leg levels"
           description: "Answers are being grounded in weak matches. Usually an embedding
             dimension mismatch, a failed migration, or an empty corpus for active users."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusretrievaldegraded"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusretrievaldegraded"
 
       # Reranking fails open by design, so without this the only symptom of a
       # broken reranker is that quality quietly reverts to the fusion baseline.
@@ -122,7 +122,7 @@ groups:
           description: "Ranking quality no longer matches the eval numbers. reason=shed or
             timeout means the bulkhead is saturated; reason=load means the model never
             started."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusrerankingdegraded"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusrerankingdegraded"
 
       # The production detector for a regression in forwarded-header handling: if
       # every caller shares one bucket, everyone gets 429s at once.
@@ -137,7 +137,7 @@ groups:
           summary: "Over 20% of requests are being rate limited"
           description: "Either a real burst, or every client is being keyed to the same
             bucket - check that the proxy's forwarded header is still trusted."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusratelimit429storm"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusratelimit429storm"
 
   - name: corpus-resources
     interval: 30s
@@ -149,7 +149,7 @@ groups:
           severity: ticket
         annotations:
           summary: "Estimated LLM spend above $1/hour"
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpuscostburn"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpuscostburn"
 
       # Proves the stale-ingestion sweeper is doing its job in production, not
       # only in the integration tests.
@@ -162,7 +162,7 @@ groups:
           summary: "Documents have been waiting to ingest for 15 minutes"
           description: "Either sustained load beyond the ingestion bulkhead, or documents
             stuck in PROCESSING that the sweeper is not reclaiming."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusingestionbacklog"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusingestionbacklog"
 
       - alert: CorpusCircuitBreakerOpen
         expr: max by (name) (resilience4j_circuitbreaker_state{state="open"}) == 1
@@ -174,7 +174,7 @@ groups:
           description: "Calls are being rejected without reaching the provider. Deliberately
             NOT part of the readiness group - a shared provider outage would otherwise take
             every replica out of rotation, including for /api/search, which needs no model."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpuscircuitbreakeropen"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpuscircuitbreakeropen"
 
       - alert: CorpusDbPoolSaturated
         expr: |
@@ -186,4 +186,4 @@ groups:
           summary: "Hikari pool over 90% utilised"
           description: "Requests will start waiting on connection-timeout (3s) and failing.
             Check replicas x maximumPoolSize against the managed-Postgres connection cap."
-          runbook_url: "https://github.com/ahmeddyounis/corpus/blob/main/docs/runbook.md#corpusdbpoolsaturated"
+          runbook_url: "https://github.com/dontdude/Runbook-assistant/blob/main/docs/runbook.md#corpusdbpoolsaturated"
