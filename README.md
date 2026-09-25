@@ -295,6 +295,7 @@ This turns "the bot seems fine" into a tracked, enforced quality bar — and giv
 - **Cache effectiveness** — `corpus_embedding_cache_total{result,tier}` and `corpus_response_cache_total{result}` give hit ratios per tier, so the saving is measured rather than assumed; a cache hit reports zero tokens and zero cost, because none were spent.
 - **Ingestion backlog** — `corpus_ingestion_pending_documents`, the production check that the stale-ingestion sweeper is actually reclaiming stranded documents.
 - Exposed via `/actuator/prometheus`; `docker compose --profile monitoring up` adds Prometheus + a provisioned Grafana dashboard ([docs/grafana-dashboard.json](docs/grafana-dashboard.json)).
+- Live capture ([docs/observability.png](docs/observability.png)): HTTP rate + 429 gauge populated from real traffic; token/cost panels fill in once a chat model is configured (`local`/`cloud`) — keyless serves retrieval metrics only, by design.
 - **SLOs and alerting** — four objectives in [docs/slo.md](docs/slo.md), multi-window multi-burn-rate error-budget alerts in [alerts.yml](deploy/helm/corpus/files/alerts.yml) (one canonical file consumed by both compose and the Helm chart, validated by `promtool check rules` in CI), and a [runbook](docs/runbook.md) section per alert reachable from its `runbook_url`.
 
 ---
