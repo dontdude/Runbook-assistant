@@ -361,6 +361,7 @@ Full ADRs in [docs/decisions/](docs/decisions/); summaries:
 5. **Provider abstraction with a local-first default.** Ollama default = zero-cost onboarding and no secrets in CI; cloud profile = production realism; cost is a first-class metric.
 6. **[Evals in CI](docs/decisions/0007-keyless-ci-and-evals.md).** LLM apps regress silently; automated retrieval/faithfulness gates make quality a build artifact instead of a vibe.
 7. **[Virtual threads over reactive](docs/decisions/0005-sse-on-virtual-threads.md).** RAG is I/O-bound fan-out; virtual threads keep the concurrency win with a blocking, debuggable programming model.
+8. **[Fork operating model](docs/decisions/0014-fork-operating-model.md).** Keyless daily driver via gitignored `.env` (no Ollama RAM), separate Vite UI, history preserved with cosmetic-only rebrand.
 
 ---
 
