@@ -199,6 +199,20 @@ curl -N -X POST localhost:8080/api/chat \
   -d '{"message":"Summarize the termination clause and cite the source."}'
 ```
 
+### Web UI (React)
+
+Minimal chat + upload + cited-search UI in `web/` (Vite + React 18 + TS, no extra deps).
+The backend proxies `/api` to `localhost:8080`, so start the stack above first:
+
+```bash
+cd web && npm install && npm run dev   # http://localhost:5173, login demo/demo
+```
+
+Tabs: **chat** (SSE streaming, `[n]` citations, token/cost usage), **docs**
+(upload with ingestion polling), **search** (hybrid retrieval with per-request
+`rerank` A/B toggle and score breakdown). In the `keyless` profile chat
+returns the documented 503, shown in the trace drawer.
+
 ---
 
 ## Configuration
@@ -355,7 +369,7 @@ Full ADRs in [docs/decisions/](docs/decisions/); summaries:
 - [ ] Cross-encoder **reranking** stage after RRF (measure the bump with the eval harness)
 - [ ] **Semantic response caching** to cut token spend on near-duplicate questions
 - [ ] Multi-tenancy: organizations, roles, and document-level ACLs
-- [ ] Minimal React frontend (chat + upload + citations UI)
+- [x] Minimal React frontend (chat + upload + citations UI) — see `web/`
 - [ ] Record `docs/demo.gif` — Claude Desktop calling Corpus via MCP (see [docs/mcp-setup.md](docs/mcp-setup.md))
 - [ ] Helm chart / k8s manifests
 
