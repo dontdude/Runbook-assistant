@@ -54,6 +54,10 @@ services:
       CORPUS_CHAT_MODEL: ${CORPUS_CHAT_MODEL:-qwen3:4b}
       CORPUS_EMBEDDING_MODEL: ${CORPUS_EMBEDDING_MODEL:-nomic-embed-text}
       CORPUS_JWT_SECRET: ${CORPUS_JWT_SECRET:-corpus-local-dev-secret-0123456789-abcdefghijklmnop}
+      # Cloud chat via an Anthropic-compatible endpoint (e.g. a gateway mirror).
+      # Empty by default = untouched upstream behavior; set in gitignored .env.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SPRING_AI_ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
       # Tracing stays off unless asked for; with the monitoring profile up,
       # CORPUS_TRACING_ENABLED=true sends spans to Jaeger.
       CORPUS_TRACING_ENABLED: ${CORPUS_TRACING_ENABLED:-false}
