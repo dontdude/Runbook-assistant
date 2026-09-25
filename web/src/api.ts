@@ -13,7 +13,14 @@ export interface UsageStats {
   promptTokens?: number;
   completionTokens?: number;
   totalTokens?: number;
+  /** Backend record field is `estimatedCostUsd`; `costUsd` kept as fallback. */
+  estimatedCostUsd?: number;
   costUsd?: number;
+}
+
+export function usageCost(u: UsageStats): string {
+  const v = u.estimatedCostUsd ?? u.costUsd;
+  return v == null ? '?' : String(v);
 }
 
 export interface ScoredChunk {

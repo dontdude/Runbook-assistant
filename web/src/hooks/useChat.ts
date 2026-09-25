@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { streamChat, type Citation, type UsageStats } from '../api';
+import { streamChat, usageCost, type Citation, type UsageStats } from '../api';
 
 /** Single-question SSE chat state machine: idle -> streaming -> done | error. */
 export function useChat(token: string | null, log: (line: string) => void) {
@@ -30,7 +30,7 @@ export function useChat(token: string | null, log: (line: string) => void) {
       onUsage: (u) => {
         if (runId.current === id) {
           setUsage(u);
-          log(`usage tokens=${u.totalTokens ?? '?'} cost=$${u.costUsd ?? '?'}`);
+          log(`usage tokens=${u.totalTokens ?? '?'} cost=$${usageCost(u)}`);
         }
       },
       onDone: () => {

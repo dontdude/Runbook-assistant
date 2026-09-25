@@ -1,5 +1,6 @@
 import { CitedText } from './CitedText';
 import { Hint } from './Hint';
+import { usageCost } from '../api';
 import type { useChat } from '../hooks/useChat';
 
 type Chat = ReturnType<typeof useChat>;
@@ -61,7 +62,7 @@ export function ChatTab({ chat }: { chat: Chat }) {
 
       {chat.usage && (
         <div className="muted">
-          tokens={String(chat.usage.totalTokens ?? '?')} cost=${String(chat.usage.costUsd ?? '?')}
+          tokens={String(chat.usage.totalTokens ?? '?')} cost=${usageCost(chat.usage)}
         </div>
       )}
     </section>
