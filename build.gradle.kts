@@ -61,8 +61,8 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
 
     // Ingestion
-    implementation("org.apache.tika:tika-core:3.3.2")
-    implementation("org.apache.tika:tika-parsers-standard-package:3.3.2")
+    implementation("org.apache.tika:tika-core:4.0.0")
+    implementation("org.apache.tika:tika-parsers-standard-package:4.0.0")
     implementation("com.knuddels:jtokkit:1.1.0")
 
     // Cross-encoder reranking. Both resolve transitively through
