@@ -10,6 +10,8 @@
 ![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0-6DB33F)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
+![Demo](docs/demo.gif)
+
 ---
 
 ## What it does
@@ -373,8 +375,6 @@ Full ADRs in [docs/decisions/](docs/decisions/); summaries:
 - [ ] Multi-tenancy: organizations, roles, and document-level ACLs
 - [x] Minimal React frontend (chat + upload + citations UI) — see `web/`
 - [x] Record `docs/demo.gif` — UI walkthrough: login → chat → documents → reranked search
-
-![Demo](docs/demo.gif)
 - [ ] Helm chart / k8s manifests
 
 ---
@@ -385,4 +385,4 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-*Built as a portfolio project to demonstrate production-grade LLM engineering on the JVM: RAG, hybrid retrieval, agentic tool calling via MCP, evaluation-driven development, and LLM observability — all on a current Spring Boot 4 / Spring AI 2.0 / Java 25 stack.*
+*Production-grade RAG on Spring Boot 4 / Spring AI 2.0 / Java 25 — hybrid retrieval, agentic MCP tools, eval-gated quality, LLM observability.*
