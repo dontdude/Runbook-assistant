@@ -41,6 +41,7 @@ dependencies {
     constraints {
         implementation("org.postgresql:postgresql:42.7.12")
         implementation("org.jsoup:jsoup:1.23.2")
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.25")
     }
 
     // Web, ops, persistence
