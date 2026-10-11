@@ -167,7 +167,10 @@ jobs:
           curl -sf localhost:8080/actuator/health/liveness  | jq -e '.status == "UP"'
 
           echo "metrics:"
-          curl -sf localhost:8080/actuator/prometheus | grep -q corpus_rag_phase_seconds
+          # Download-then-grep rather than a pipe: with `pipefail', grep -q
+          # closing the pipe early turns into a curl exit 23 flake.
+          curl -sf localhost:8080/actuator/prometheus -o /tmp/metrics.txt
+          grep -q corpus_rag_phase_seconds /tmp/metrics.txt
 
           echo "keyless chat returns a self-documenting 503:"
           code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/api/chat \
