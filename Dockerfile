@@ -19,6 +19,10 @@ LABEL org.opencontainers.image.source="https://github.com/dontdude/Runbook-assis
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.title="runbook-assistant"
 RUN groupadd --system corpus && useradd --system --gid corpus corpus
+# Remove the Go-based pebble KV binary shipped in the JRE base image: nothing
+# in a Java runtime uses it, and Trivy flags its bundled Go stdlib (HIGH CVEs
+# unfixed at this base revision). Smaller attack surface, same runtime.
+RUN rm -f /usr/bin/pebble
 # Pre-create the model cache with the right ownership: Docker copies this
 # directory's permissions when it first initialises an empty named volume here,
 # which is what lets the non-root user write to it.

@@ -35,6 +35,10 @@ configurations.all {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(platform("org.springframework.ai:spring-ai-bom:2.0.0"))
+    // CVE fix (Trivy HIGH on jackson-databind/core 3.1.4, fixed in 3.1.7):
+    // align the whole tools.jackson set to the patched line. Patch-only
+    // bump inside the 3.1.x line Boot 4.1 was tested against.
+    implementation(platform("tools.jackson:jackson-bom:3.1.7"))
 
     // Web, ops, persistence
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
