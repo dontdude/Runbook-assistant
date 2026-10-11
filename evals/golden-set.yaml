@@ -639,12 +639,14 @@ cases:
       Startup fails fast with an explicit error instead of serving
       mixed-dimension vectors; the operator wipes the volume and re-ingests.
 
-  - id: schema-hnsw-with-values
-    question: "What HNSW parameters does the vector index use?"
+  - id: schema-single-table-fusion
+    question: "Why do chunks and vectors live in the same database table?"
     expected_sources: [vector-store-schema.md]
     related_sources: [pgvector-guide.md]
     reference_answer: >-
-      m = 16 with ef_construction = 64 over vector_cosine_ops.
+      So both retrieval legs fuse on vector_store.id: the keyword GIN index
+      and the HNSW index address the same rows instead of joining across
+      stores.
 
   - id: quota-daily-numbers
     question: "What are the default daily token and cost ceilings per user?"
@@ -763,15 +765,6 @@ cases:
     reference_answer: >-
       Up to 40 candidates per query, not a generic top-100: the cap bounds
       the quadratic attention cost of the cross-encoder.
-
-  - id: duel-similarity-index
-    tags: [hard]
-    question: "Which index serves similarity search in the Corpus database?"
-    expected_sources: [vector-store-schema.md]
-    related_sources: [postgres-tuning-general.md, pgvector-guide.md]
-    reference_answer: >-
-      An HNSW index with m = 16 and ef_construction = 64 over
-      vector_cosine_ops — not a B-tree default or a generic GIN suggestion.
 
   - id: duel-quota-vs-generic-cost
     tags: [hard]
