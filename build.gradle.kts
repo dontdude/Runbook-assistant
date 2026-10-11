@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
     java
     jacoco
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
 }
 
 group = "dev.ahmeddyounis"
@@ -35,10 +35,13 @@ configurations.all {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(platform("org.springframework.ai:spring-ai-bom:2.0.0"))
-    // CVE fix (Trivy HIGH on jackson-databind/core 3.1.4, fixed in 3.1.7):
-    // align the whole tools.jackson set to the patched line. Patch-only
-    // bump inside the 3.1.x line Boot 4.1 was tested against.
+    // CVE fixes (Trivy HIGH/CRITICAL with fixed versions upstream): patch-line
+    // floors. Highest version wins, so these never pin below the BOM.
     implementation(platform("tools.jackson:jackson-bom:3.1.7"))
+    constraints {
+        implementation("org.postgresql:postgresql:42.7.12")
+        implementation("org.jsoup:jsoup:1.23.2")
+    }
 
     // Web, ops, persistence
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
