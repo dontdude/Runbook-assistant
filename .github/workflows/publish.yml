@@ -89,7 +89,7 @@ jobs:
         run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
       # Scans the published image rather than a locally rebuilt one, so the
       # result describes the artifact that actually exists in the registry.
-      - name: Trivy scan (advisory: report HIGH/CRITICAL, do not gate)
+      - name: "Trivy scan (advisory: report HIGH/CRITICAL, do not gate)"
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ env.REPO_LC }}@${{ needs.publish.outputs.digest }}
