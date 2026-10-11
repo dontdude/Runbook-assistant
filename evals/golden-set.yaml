@@ -1,8 +1,10 @@
 # Golden evaluation set for Corpus retrieval + answer quality.
 #
-# Six of the sample documents are deliberate distractors: they cover the same
-# vocabulary as a real source but answer a different question (index tuning in
-# general vs. what Corpus configures, IR metric definitions vs. Corpus's gates).
+# Eight of the twenty sample documents are deliberate distractors: they cover
+# the same vocabulary as a real source but answer a different question
+# (index tuning in general vs. what Corpus configures, IR metric definitions
+# vs. Corpus's gates, generic RAG rules of thumb vs. Corpus's measured
+# values, general Postgres tuning vs. the vector store schema).
 # Cases tagged `hard` are the ones whose keywords appear in both, so a system
 # that matches on surface terms alone ranks the wrong document first.
 # Each case: a question, the sample document(s) that contain the answer, and a
@@ -318,3 +320,464 @@ cases:
     reference_answer: >-
       embedding, retrieval, first_token, and full_response, each a Micrometer
       timer with histogram buckets so percentiles can be computed per phase.
+
+  # --- expansion: second angles on the original corpus ----------------------
+
+  - id: arch-package-seams
+    question: "Name the package boundaries inside the modular monolith."
+    expected_sources: [corpus-architecture.md]
+    reference_answer: >-
+      ingestion, retrieval, chat, mcp, ops, and security: strict package
+      boundaries that preserve the seams where services could split later.
+
+  - id: arch-run-locally
+    tags: [paraphrase]
+    question: "How do you start the entire system on a fresh machine?"
+    expected_sources: [corpus-architecture.md]
+    reference_answer: >-
+      One deployable started with a single docker compose up, which keeps the
+      demo runnable without orchestrating several services.
+
+  - id: pgvector-cosine-operator
+    question: "Which pgvector operator does the similarity search use?"
+    expected_sources: [pgvector-guide.md]
+    reference_answer: >-
+      The cosine-distance operator over vector_cosine_ops, because sentence
+      embedding models are trained for cosine similarity.
+
+  - id: pgvector-scoping-index
+    question: "How is per-user document scoping indexed on the vector leg?"
+    expected_sources: [pgvector-guide.md]
+    reference_answer: >-
+      A GIN index over the metadata JSONB carries user and document scoping,
+      with additional btree indexes on the extracted ids for SQL-side scoping.
+
+  - id: chunking-tokenizer-name
+    question: "Which tokenizer counts the tokens for chunk windows?"
+    expected_sources: [chunking-strategies.md]
+    reference_answer: >-
+      The cl100k_base tokenizer counts the 512-token windows and the 64-token
+      overlap.
+
+  - id: chunking-window-advance
+    tags: [paraphrase]
+    question: "Once a chunk window is cut, where does the next one begin?"
+    expected_sources: [chunking-strategies.md]
+    reference_answer: >-
+      The window advances by size minus overlap, so each new window starts 448
+      tokens after the previous one under the defaults.
+
+  - id: evals-keyless-determinism
+    question: "How can pull-request evals run with no API keys and stay deterministic?"
+    expected_sources: [rag-evaluation.md]
+    reference_answer: >-
+      PR-tier evals embed with the in-process ONNX model, which is
+      deterministic and keyless, while the judge-based faithfulness evals run
+      nightly against a live model instead.
+
+  - id: evals-judge-thresholds
+    tags: [keyword]
+    question: "What score must the nightly judge evals reach?"
+    expected_sources: [rag-evaluation.md]
+    reference_answer: >-
+      Faithfulness and answer relevance must each average at least 0.80 on a
+      0 to 1 scale.
+
+  - id: mcp-tools-enumerated
+    question: "Which three tools does the MCP server expose?"
+    expected_sources: [mcp-protocol.md]
+    reference_answer: >-
+      search_documents for ranked retrieval, ask_documents for a full cited
+      answer, and list_documents for documents with ingestion status.
+
+  - id: mcp-anonymous-demo
+    question: "When do anonymous MCP calls act as the demo user?"
+    expected_sources: [mcp-protocol.md]
+    reference_answer: >-
+      In the local and keyless profiles, where anonymous access is mapped to
+      the demo user so clients can try the tools with zero credentials.
+
+  - id: jwt-token-lifetime
+    question: "How long does an issued token remain valid?"
+    expected_sources: [jwt-security-primer.md]
+    reference_answer: >-
+      Tokens live for 24 hours, bounded by the iat and exp claims.
+
+  - id: jwt-password-storage
+    question: "How are user passwords stored?"
+    expected_sources: [jwt-security-primer.md]
+    reference_answer: >-
+      As bcrypt hashes, which are deliberately slow to brute-force and cannot
+      be reversed into the original password.
+
+  - id: obs-metrics-endpoint
+    question: "Where are the Prometheus metrics exposed?"
+    expected_sources: [observability-llm.md]
+    reference_answer: >-
+      At the /actuator/prometheus endpoint, scraped by Prometheus with a
+      provisioned Grafana dashboard for tokens, cost, latency, and retrieval
+      quality.
+
+  - id: obs-budget-vs-metric
+    tags: [paraphrase]
+    question: "Why can't the token-spend dashboard enforce a budget by itself?"
+    expected_sources: [observability-llm.md]
+    related_sources: [token-budgeting.md]
+    reference_answer: >-
+      A Micrometer counter is an export: sampled, aggregated, and reset on
+      restart. Enforcement needs the durable per-user ceilings in the
+      database, which is what quotas provide.
+
+  - id: springai-embedding-independent
+    question: "Can the embedding model change without touching the chat model?"
+    expected_sources: [spring-ai-overview.md]
+    reference_answer: >-
+      Yes: chat and embedding providers are selected independently through
+      spring.ai.model.chat and spring.ai.model.embedding, so either side can
+      switch by configuration alone.
+
+  - id: springai-memory-window
+    tags: [keyword]
+    question: "How many past messages does the memory advisor load into the prompt?"
+    expected_sources: [spring-ai-overview.md]
+    reference_answer: >-
+      The last twenty messages of the active conversation, keyed by a
+      conversation id parameter.
+
+  - id: token-budget-middle-penalty
+    question: "Why is material in the middle of a long context at a disadvantage?"
+    expected_sources: [token-budgeting.md]
+    reference_answer: >-
+      Long contexts suffer position effects that disadvantage the middle, so
+      beyond a point adding passages dilutes attention faster than it adds
+      recall.
+
+  - id: token-budget-output-premium
+    tags: [paraphrase]
+    question: "If I want to cut spend without touching retrieval, what do I change?"
+    expected_sources: [token-budgeting.md]
+    reference_answer: >-
+      Response-length instructions: output tokens cost several times more than
+      input tokens, so shorter answers are the cheapest lever that leaves
+      retrieval quality untouched.
+
+  - id: tool-call-initiation
+    question: "Who decides whether a tool gets called during a chat turn?"
+    expected_sources: [tool-calling-patterns.md]
+    reference_answer: >-
+      The model decides whether to call a tool, but the application decides
+      which user the call acts as, from the authenticated request context.
+
+  - id: tool-mcp-same-identity
+    tags: [paraphrase]
+    question: "Do MCP tool calls share the same identity rules as chat tool calls?"
+    expected_sources: [tool-calling-patterns.md]
+    related_sources: [mcp-protocol.md]
+    reference_answer: >-
+      Yes: both resolve identity from the authenticated caller at the storage
+      layer, never from anything the model supplies.
+
+  - id: rerank-latency-price
+    question: "What does the reranking stage cost per query in latency?"
+    expected_sources: [reranking-and-fusion.md]
+    reference_answer: >-
+      About 231 milliseconds per query on 14 cores, paid on a path whose
+      downstream LLM call takes seconds; it can be disabled per request.
+
+  - id: rerank-fail-open
+    tags: [paraphrase]
+    question: "What happens to ranking if the reranker model fails to load?"
+    expected_sources: [reranking-and-fusion.md]
+    reference_answer: >-
+      Ranking degrades gracefully to fusion order: the reranker is fail-open,
+      so a missing model never breaks retrieval, it only removes the
+      reordering gain.
+
+  - id: gloss-mrr-meaning
+    question: "What does mean reciprocal rank actually reward?"
+    expected_sources: [retrieval-metrics-glossary.md]
+    reference_answer: >-
+      It rewards putting the first correct answer high: each case contributes
+      one over the rank of its first hit, averaged over all cases.
+
+  - id: oauth2-symmetric-enough
+    question: "When is a symmetric HMAC token sufficient instead of RS256?"
+    expected_sources: [oauth2-vs-jwt.md]
+    related_sources: [jwt-security-primer.md]
+    reference_answer: >-
+      When a single service both issues and validates its own tokens, there
+      is no foreign validator to protect a public key for, so HS256 with a
+      strong secret is sufficient.
+
+  - id: oauth2-pin-algorithm
+    tags: [paraphrase]
+    question: "What one validator setting defeats algorithm confusion?"
+    expected_sources: [oauth2-vs-jwt.md]
+    reference_answer: >-
+      Pinning the expected algorithm at the validator, so a token declaring a
+      different alg header is rejected before any signature check.
+
+  - id: hnsw-grows-well
+    question: "Which index type stays accurate as new rows keep arriving?"
+    expected_sources: [hnsw-vs-ivfflat.md]
+    related_sources: [pgvector-guide.md]
+    reference_answer: >-
+      HNSW: it builds a navigable graph incrementally, while partition-based
+      indexes derived at build time go stale as the data distribution shifts.
+
+  # --- expansion: cases for the new seed documents --------------------------
+
+  - id: sse-event-order
+    question: "In what order do chat SSE events arrive?"
+    expected_sources: [sse-streaming.md]
+    reference_answer: >-
+      Any number of token events first, then exactly one citations event, one
+      usage event, and a final done event; any failure produces a single
+      error event instead.
+
+  - id: sse-heartbeat-why
+    question: "Why does the stream send heartbeat comments every 15 seconds?"
+    expected_sources: [sse-streaming.md]
+    reference_answer: >-
+      Load balancers commonly idle out at 60 seconds, so the heartbeat keeps
+      long generations alive through them without disturbing the event
+      contract, within the 120-second stream timeout.
+
+  - id: sse-proxy-headers
+    tags: [keyword]
+    question: "Which response headers stop proxies from buffering the answer stream?"
+    expected_sources: [sse-streaming.md]
+    reference_answer: >-
+      X-Accel-Buffering set to no, plus Cache-Control with no-cache,
+      no-store, and no-transform.
+
+  - id: sse-disconnect-billing
+    tags: [paraphrase]
+    question: "A user closes the tab mid-answer. Does the model keep generating?"
+    expected_sources: [sse-streaming.md]
+    reference_answer: >-
+      No: the failed send closes the stream and cancels the upstream provider
+      subscription, so generation and billing stop instead of running unseen
+      to completion.
+
+  - id: sse-error-shape
+    question: "What does the client receive when the pipeline fails mid-stream?"
+    expected_sources: [sse-streaming.md]
+    reference_answer: >-
+      A single error event carrying a message, in place of the
+      citations-usage-done tail the client would otherwise expect.
+
+  - id: ratelimit-default-budget
+    question: "How many requests per minute does each user get by default?"
+    expected_sources: [rate-limiting.md]
+    reference_answer: >-
+      Thirty requests per minute per user from a Bucket4j token bucket, with
+      429 and a Retry-After header on excess.
+
+  - id: ratelimit-login-budget
+    question: "Why is the token endpoint limited more strictly than the rest of the API?"
+    expected_sources: [rate-limiting.md]
+    reference_answer: >-
+      Login is the one endpoint attackers can hammer without credentials, so
+      it gets ten attempts per minute per IP address instead of the standard
+      per-user budget.
+
+  - id: ratelimit-replica-buckets
+    tags: [paraphrase]
+    question: "Why must multi-replica deployments move rate-limit buckets into Postgres?"
+    expected_sources: [rate-limiting.md]
+    reference_answer: >-
+      In-memory buckets are per instance, so each replica would grant its own
+      full allowance; the Postgres backend makes all replicas draw from one
+      shared budget.
+
+  - id: ratelimit-429-vs-quota
+    tags: [hard]
+    question: "A client gets a 429. How does it know whether to retry soon or stop for the day?"
+    expected_sources: [rate-limiting.md]
+    related_sources: [quota-budgets.md]
+    reference_answer: >-
+      Rate limiting says slow down and carries Retry-After; quota exhaustion
+      uses the distinct token_quota_exhausted code meaning out for today.
+      Same status, different remedies.
+
+  - id: ratelimit-client-pacing
+    question: "How can a client avoid hitting the rate limit blindly?"
+    expected_sources: [rate-limiting.md]
+    reference_answer: >-
+      Successful calls carry an X-RateLimit-Remaining header, so clients can
+      pace themselves before they hit the wall.
+
+  - id: schema-flyway-owns-ddl
+    question: "Who is allowed to create database schema?"
+    expected_sources: [vector-store-schema.md]
+    reference_answer: >-
+      Flyway migrations alone: the vector store is configured never to create
+      schema itself, keeping applied DDL deterministic and versioned.
+
+  - id: schema-table-columns
+    tags: [keyword]
+    question: "What columns does the vector_store table have?"
+    expected_sources: [vector-store-schema.md]
+    reference_answer: >-
+      A UUID primary key, chunk content as text, a metadata JSONB column with
+      owning user and document ids, and the embedding vector.
+
+  - id: schema-tsvector-column
+    question: "How does keyword search share a table with vector search?"
+    expected_sources: [vector-store-schema.md]
+    reference_answer: >-
+      Through content_tsv, a tsvector column generated always from the
+      English configuration and stored alongside the content, with its own
+      GIN index so both retrieval legs fuse on the same table.
+
+  - id: schema-dimension-mismatch
+    tags: [paraphrase]
+    question: "What happens on startup if the database vectors don't match the configured model?"
+    expected_sources: [vector-store-schema.md]
+    reference_answer: >-
+      Startup fails fast with an explicit error instead of serving
+      mixed-dimension vectors; the operator wipes the volume and re-ingests.
+
+  - id: schema-hnsw-with-values
+    question: "What HNSW parameters does the vector index use?"
+    expected_sources: [vector-store-schema.md]
+    related_sources: [pgvector-guide.md]
+    reference_answer: >-
+      m = 16 with ef_construction = 64 over vector_cosine_ops.
+
+  - id: quota-daily-numbers
+    question: "What are the default daily token and cost ceilings per user?"
+    expected_sources: [quota-budgets.md]
+    reference_answer: >-
+      One million tokens and five dollars per user per UTC calendar day,
+      overridable per user in the user_quotas table.
+
+  - id: quota-overshoot-bound
+    tags: [paraphrase]
+    question: "By how much can a user exceed their budget, at most?"
+    expected_sources: [quota-budgets.md]
+    reference_answer: >-
+      At most one response: the check runs before the call and accrual after,
+      and holding a lock across an LLM call to close that gap would trade a
+      bounded overshoot for unbounded contention.
+
+  - id: quota-free-requests
+    question: "Which requests never consume budget?"
+    expected_sources: [quota-budgets.md]
+    reference_answer: >-
+      Ones that cost nothing: cache hits and failed model calls never reach
+      the accrual point.
+
+  - id: quota-observability
+    question: "Where does a user see their remaining budget?"
+    expected_sources: [quota-budgets.md]
+    reference_answer: >-
+      GET /api/usage reports spend, limits in force, and remainder; quota
+      blocks also surface as a dedicated counter for operators.
+
+  - id: quota-kill-switch
+    tags: [keyword]
+    question: "How are quotas disabled in an emergency?"
+    expected_sources: [quota-budgets.md]
+    reference_answer: >-
+      A single variable, CORPUS_QUOTA_ENABLED=false, turns the whole
+      mechanism off.
+
+  # --- expansion: distractor documents and hard duels ------------------------
+
+  - id: generic-chunk-start
+    question: "What is a reasonable first chunk size for a new retrieval system?"
+    expected_sources: [general-rag-advice.md]
+    reference_answer: >-
+      Sliding windows around 256 tokens with roughly ten percent overlap: a
+      starting point to replace with measurement on your own data.
+
+  - id: generic-rerank-top100
+    tags: [paraphrase]
+    question: "How many candidates should a cross-encoder rerank?"
+    expected_sources: [general-rag-advice.md]
+    reference_answer: >-
+      As a rule of thumb, rerank the top 100 from the cheap first stage;
+      tune the cutoff once you can measure the tradeoff on your corpus.
+
+  - id: generic-dot-vs-cosine
+    question: "When do dot product and cosine rank identically?"
+    expected_sources: [general-rag-advice.md]
+    reference_answer: >-
+      On normalized embeddings; pick cosine whenever normalization cannot be
+      guaranteed.
+
+  - id: generic-fusion-sum
+    tags: [paraphrase]
+    question: "How should two retrieval legs be combined without much data?"
+    expected_sources: [general-rag-advice.md]
+    reference_answer: >-
+      A simple weighted sum tuned on a handful of sample queries is an honest
+      starting point before anything fancier.
+
+  - id: pg-shared-buffers
+    question: "How large should shared_buffers be?"
+    expected_sources: [postgres-tuning-general.md]
+    reference_answer: >-
+      About twenty-five percent of system RAM, so the database caches hot
+      pages itself instead of relying entirely on the OS page cache.
+
+  - id: pg-work-mem-danger
+    tags: [paraphrase]
+    question: "Why is an aggressive work_mem risky?"
+    expected_sources: [postgres-tuning-general.md]
+    reference_answer: >-
+      It is allocated per operation per connection, so a large value times
+      many connections becomes an out-of-memory incident.
+
+  - id: pg-gin-when
+    question: "When is a GIN index the right choice?"
+    expected_sources: [postgres-tuning-general.md]
+    reference_answer: >-
+      For full-text search over documents or containment over arrays and
+      JSONB; B-tree remains the default for equality and range predicates.
+
+  - id: pg-vacuum-why
+    tags: [keyword]
+    question: "Why run autovacuum and ANALYZE on a schedule?"
+    expected_sources: [postgres-tuning-general.md]
+    reference_answer: >-
+      So the planner statistics track reality as write volume changes, which
+      is what keeps index choices good over time.
+
+  - id: duel-chunk-size
+    tags: [hard]
+    question: "What chunk size and overlap does Corpus itself use?"
+    expected_sources: [chunking-strategies.md]
+    related_sources: [general-rag-advice.md, token-budgeting.md]
+    reference_answer: >-
+      512 tokens with 64 tokens of overlap counted by cl100k_base — not the
+      generic 256-token starting point, which answers a different question.
+
+  - id: duel-rerank-candidates
+    tags: [hard]
+    question: "How many candidates does the Corpus reranker consider per query?"
+    expected_sources: [vector-store-schema.md]
+    related_sources: [general-rag-advice.md]
+    reference_answer: >-
+      Up to 40 candidates per query, not a generic top-100: the cap bounds
+      the quadratic attention cost of the cross-encoder.
+
+  - id: duel-similarity-index
+    tags: [hard]
+    question: "Which index serves similarity search in the Corpus database?"
+    expected_sources: [vector-store-schema.md]
+    related_sources: [postgres-tuning-general.md, pgvector-guide.md]
+    reference_answer: >-
+      An HNSW index with m = 16 and ef_construction = 64 over
+      vector_cosine_ops — not a B-tree default or a generic GIN suggestion.
+
+  - id: duel-quota-vs-generic-cost
+    tags: [hard]
+    question: "What exact daily budgets does Corpus enforce per user?"
+    expected_sources: [quota-budgets.md]
+    related_sources: [token-budgeting.md, observability-llm.md]
+    reference_answer: >-
+      One million tokens and five dollars per UTC day, enforced in the
+      database — not estimates or rules of thumb.

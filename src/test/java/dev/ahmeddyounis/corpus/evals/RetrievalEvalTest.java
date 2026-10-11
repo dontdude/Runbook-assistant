@@ -1,6 +1,7 @@
 package dev.ahmeddyounis.corpus.evals;
 
 import dev.ahmeddyounis.corpus.ingestion.DocumentStatus;
+import dev.ahmeddyounis.corpus.ingestion.IngestionCapacityException;
 import dev.ahmeddyounis.corpus.ingestion.IngestionService;
 import dev.ahmeddyounis.corpus.retrieval.Reranker;
 import dev.ahmeddyounis.corpus.retrieval.RetrievalService;
@@ -83,8 +84,10 @@ class RetrievalEvalTest extends AbstractIntegrationTest {
         assertThat(samples).as("bundled sample corpus").isNotEmpty();
         for (Resource sample : samples) {
             if (!present.contains(sample.getFilename())) {
-                ingestionService.upload(evalUserId, sample.getFilename(), "text/markdown",
-                        sample.getContentAsByteArray());
+                // The corpus is bigger than the ingestion bulkhead: shed uploads
+                // are retried like LocalDemoSeeder does instead of failing the
+                // suite on startup burst.
+                uploadWithBackpressure(sample);
             }
         }
 
@@ -100,6 +103,19 @@ class RetrievalEvalTest extends AbstractIntegrationTest {
 
     /** Mean wall-clock per query, in milliseconds, for the most recent {@link #run}. */
     private double lastRunMillisPerQuery;
+
+    private void uploadWithBackpressure(Resource sample) throws Exception {
+        for (int attempt = 0; ; attempt++) {
+            try {
+                ingestionService.upload(evalUserId, sample.getFilename(), "text/markdown",
+                        sample.getContentAsByteArray());
+                return;
+            } catch (IngestionCapacityException e) {
+                assertThat(attempt).as("ingestion stayed at capacity").isLessThan(120);
+                Thread.sleep(500);
+            }
+        }
+    }
 
     private List<EvalMetrics.CaseResult> run(List<GoldenSet.GoldenCase> cases, boolean rerank, int topK) {
         List<EvalMetrics.CaseResult> results = new ArrayList<>();

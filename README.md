@@ -263,21 +263,21 @@ The embedding dimension is baked into the `vector_store` schema. **Switching emb
 
 ## Evaluation harness
 
-Quality is a feature. Corpus ships with [`evals/golden-set.yaml`](evals/golden-set.yaml) — 32 question → expected-source → reference-answer cases over the seeded sample documents. Six of the 14 documents are deliberate **distractors** that share vocabulary with a real source but answer a different question, and the 14 cases tagged `hard` are the ones whose keywords appear in both. Without them the metrics saturate at 1.000 and no ranking change can be measured.
+Quality is a feature. Corpus ships with [`evals/golden-set.yaml`](evals/golden-set.yaml) — 90 question → expected-source → reference-answer cases over the seeded sample documents. Eight of the 20 documents are deliberate **distractors** that share vocabulary with a real source but answer a different question, and the 19 cases tagged `hard` are the ones whose keywords appear in both. Without them the metrics saturate at 1.000 and no ranking change can be measured.
 
 Every case runs **twice, with reranking off and on**, so the cross-encoder's effect is a measured delta in the build output rather than a claim:
 
 | Metric | What it measures | Gate | RRF only | + rerank | Δ |
 |---|---|---|---|---|---|
-| `recall@1` | Correct source ranked first | — | 0.688 | **0.813** | +0.125 |
-| `recall@3` | Correct source in the top 3 | ≥ 0.82 | 0.875 | **0.938** | +0.063 |
-| `recall@5` | Correct source in the top 5 | ≥ 0.88 | 0.938 | **0.969** | +0.031 |
-| `MRR` | How high the correct source ranks | ≥ 0.74 | 0.792 | **0.883** | +0.091 |
-| `nDCG@5` | Ordering quality within the window | ≥ 0.76 | 0.814 | **0.879** | +0.065 |
+| `recall@1` | Correct source ranked first | — | 0.644 | **0.778** | +0.134 |
+| `recall@3` | Correct source in the top 3 | ≥ 0.82 | 0.844 | **0.933** | +0.089 |
+| `recall@5` | Correct source in the top 5 | ≥ 0.88 | 0.933 | **0.967** | +0.034 |
+| `MRR` | How high the correct source ranks | ≥ 0.74 | 0.753 | **0.856** | +0.103 |
+| `nDCG@5` | Ordering quality within the window | ≥ 0.76 | 0.784 | **0.870** | +0.086 |
 | Faithfulness (LLM-as-judge) | Is the answer grounded in retrieved context? | ≥ 0.80 | nightly | | |
 | Answer relevance (LLM-as-judge) | Does the answer address the question? | ≥ 0.80 | nightly | | |
 
-On the 14 `hard` cases the gap is wider still — recall@1 0.643 → 0.786, recall@3 0.929 → **1.000** — which is what you would expect if the distractors are doing their job. The cost is **+231 ms per query** (3.8 ms → 235 ms on 14 cores), paid on a path whose downstream LLM call takes seconds; `CORPUS_RERANK_ENABLED=false` turns it off. [ADR 0010](docs/decisions/0010-cross-encoder-reranking.md) records the tuning runs, including two settings that looked like free wins and were not.
+On the 19 `hard` cases the gap is wider still — recall@1 0.632 → 0.737, MRR 0.737 → **0.820** — which is what you would expect if the distractors are doing their job. The cost is **+231 ms per query** (3.8 ms → 235 ms on 14 cores), paid on a path whose downstream LLM call takes seconds; `CORPUS_RERANK_ENABLED=false` turns it off. [ADR 0010](docs/decisions/0010-cross-encoder-reranking.md) records the tuning runs, including two settings that looked like free wins and were not.
 
 Gates are set to a measured value minus a 0.05 margin, never aspirationally, and reranking additionally has to beat the fusion-only head on the *same run* — an absolute gate alone would let a reranker that quietly made ordering worse still pass, since those gates were set from the fusion-only baseline.
 
