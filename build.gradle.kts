@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
     java
     jacoco
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
 }
 
 group = "dev.ahmeddyounis"
@@ -34,7 +34,7 @@ configurations.all {
 
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
-    implementation(platform("org.springframework.ai:spring-ai-bom:2.0.0"))
+    implementation(platform("org.springframework.ai:spring-ai-bom:2.0.2"))
     // CVE fixes (Trivy HIGH/CRITICAL with fixed versions upstream): patch-line
     // floors. Highest version wins, so these never pin below the BOM.
     implementation(platform("tools.jackson:jackson-bom:3.1.7"))
